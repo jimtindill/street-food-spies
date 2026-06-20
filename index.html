@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>M.U.N.C.H. — Classified</title>
+
+  <!-- PWA / mobile -->
+  <meta name="theme-color" content="#0e0e10" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="MUNCH" />
+  <meta name="description" content="A secret-agent street food adventure across London." />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icons/icon-180.png" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- Animated backdrop -->
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-scan" aria-hidden="true"></div>
+
+  <!-- Top status bar (hidden on intro) -->
+  <header id="hud" class="hud hidden">
+    <button id="hud-menu" class="hud-btn" aria-label="Mission menu">☰</button>
+    <div class="hud-rank">
+      <span class="hud-label">RANK</span>
+      <span id="hud-rank-name">Rookie</span>
+    </div>
+    <div class="hud-keys" id="hud-keys" aria-label="Flavour keys recovered"></div>
+    <div class="hud-points">
+      <span class="hud-label">PTS</span>
+      <span id="hud-points">0</span>
+    </div>
+  </header>
+
+  <!-- Main app surface -->
+  <main id="app" class="app" aria-live="polite"></main>
+
+  <!-- Menu drawer -->
+  <div id="drawer" class="drawer hidden" role="dialog" aria-modal="true">
+    <div class="drawer-panel">
+      <h2>Mission Control</h2>
+      <p class="drawer-sub">M.U.N.C.H. field operations</p>
+      <button class="btn btn-ghost" id="drawer-close">Resume mission</button>
+      <button class="btn btn-ghost" id="drawer-map">Open current target in Maps</button>
+      <button class="btn btn-ghost" id="drawer-skip">Stuck? Skip this step</button>
+      <button class="btn btn-danger" id="drawer-reset">Abort &amp; wipe mission</button>
+      <p class="drawer-meta" id="drawer-meta"></p>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Scripts: classic, ordered, attach to window.SFS -->
+  <script src="js/content.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/geo.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/engine.js"></script>
+  <script>
+    // Register service worker for offline play (best-effort; ignored on file://)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('service-worker.js').catch(function (e) {
+          console.warn('SW registration failed (fine for local file testing):', e);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

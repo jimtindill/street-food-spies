@@ -1,0 +1,29 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1b1b22"/>
+      <stop offset="1" stop-color="#0c0c0f"/>
+    </linearGradient>
+    <radialGradient id="amber" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#f4c66a"/>
+      <stop offset="1" stop-color="#c8901f"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- subtle grid -->
+  <g stroke="#ffffff" stroke-opacity="0.05" stroke-width="2">
+    <path d="M0 176 H512 M0 336 H512 M176 0 V512 M336 0 V512"/>
+  </g>
+  <!-- magnifying glass ring -->
+  <circle cx="232" cy="232" r="118" fill="none" stroke="url(#amber)" stroke-width="26"/>
+  <!-- handle -->
+  <rect x="316" y="316" width="150" height="42" rx="21" transform="rotate(45 316 316)" fill="url(#amber)"/>
+  <!-- fork inside the lens -->
+  <g fill="#0e0e10">
+    <rect x="206" y="170" width="14" height="60" rx="6"/>
+    <rect x="226" y="170" width="14" height="60" rx="6"/>
+    <rect x="246" y="170" width="14" height="60" rx="6"/>
+    <rect x="220" y="222" width="26" height="92" rx="12"/>
+    <path d="M206 170 q27 -8 54 0 v14 q-27 -8 -54 0 z"/>
+  </g>
+</svg>
