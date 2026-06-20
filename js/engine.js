@@ -8,7 +8,7 @@
   var state, steps;
 
   // transient per-navigation UI state (reset on every render())
-  var hintLevel = 0, kidActive = false, decoderShift = 0;
+  var hintLevel = 0, decoderShift = 0;
   var lastPhotos = {}; // taskKey -> dataUrl (so a just-taken photo shows instantly)
 
   /* ----------------------------- INIT ----------------------------- */
@@ -66,7 +66,7 @@
   function persist() { Store.save(state); }
 
   function render() {
-    hintLevel = 0; kidActive = false; decoderShift = 0;
+    hintLevel = 0; decoderShift = 0;
     var st = cur();
     document.getElementById("hud").classList.toggle("hidden", st.kind === "intro");
     updateHUD();
@@ -198,7 +198,7 @@
   /* ---------- Puzzle (location or key) ---------- */
   function renderPuzzle(stop, role) {
     var base = role === "location" ? stop.locationPuzzle : stop.keyPuzzle;
-    var p = (kidActive && base.kidMode) ? base.kidMode : base;
+    var p = base;
     var title = role === "location" ? "DECODE THE DROP" : "CRACK THE FLAVOUR LOCK";
 
     var body = el("div");
@@ -220,12 +220,6 @@
     var hintBtn = bigBtn("Need a hint, Agent?", function () { showNextHint(p, hintBox, hintBtn, role); }, "btn-secondary");
     card.appendChild(hintBtn);
     card.appendChild(hintBox);
-
-    // Kid mode toggle
-    if (base.kidMode) {
-      var kidLabel = kidActive ? "↩︎ Back to Agent mode" : "👦 Junior Agent mode (easier)";
-      card.appendChild(el("button", { class: "kid-toggle", onClick: function () { UI.sound.click(); kidActive = !kidActive; renderPuzzle(stop, role); } }, kidLabel));
-    }
 
     UI.mount(card);
   }
@@ -314,7 +308,7 @@
       var tile = el("button", { class: "emoji-tile" }, emo);
       tile.addEventListener("click", function () {
         UI.sound.click();
-        if (emo === p.answer) { tile.classList.add("correct"); solvePuzzle(role, kidActive); }
+        if (emo === p.answer) { tile.classList.add("correct"); solvePuzzle(role, false); }
         else { tile.classList.add("wrong"); failPuzzle(); setTimeout(function () { tile.classList.remove("wrong"); }, 450); }
       });
       grid.appendChild(tile);

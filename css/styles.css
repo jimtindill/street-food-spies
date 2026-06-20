@@ -198,11 +198,11 @@ h2.title { font-size: 20px; margin: 6px 0; }
 
 /* ---------- Stamp / reveal ---------- */
 .stamp {
-  position: absolute; top: 14px; right: -8px; transform: rotate(8deg);
+  position: absolute; top: 16px; right: 14px; transform: rotate(8deg);
   border: 3px solid var(--red); color: var(--red); font-family: var(--mono); font-weight: 800;
   letter-spacing: 0.16em; padding: 4px 10px; border-radius: 6px; font-size: 12px; opacity: 0.9;
 }
-.key-reveal { text-align: center; padding: 10px 0; }
+.key-reveal { text-align: center; padding: 34px 26px 28px; }
 .key-badge {
   width: 120px; height: 120px; margin: 6px auto 14px; border-radius: 50%;
   display: grid; place-items: center; font-size: 54px;
