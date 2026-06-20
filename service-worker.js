@@ -1,7 +1,7 @@
 /* Service worker — caches the whole app shell so the game runs fully offline
    once it has loaded a single time. Relative URLs so it works on any host path
    (Netlify root, GitHub Pages subpath, etc.). Bump CACHE to force an update. */
-var CACHE = "munch-spies-v1";
+var CACHE = "munch-spies-20260620212314";
 var ASSETS = [
   "./",
   "index.html",
