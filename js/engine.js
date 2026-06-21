@@ -45,6 +45,7 @@
       s.push({ kind: "reveal", stop: i, role: "key" });
       if (stop.cliffhanger) s.push({ kind: "cliffhanger", stop: i });
     });
+    s.push({ kind: "finaleTask" });
     s.push({ kind: "finale" });
     s.push({ kind: "dossier" });
     return s;
@@ -102,6 +103,7 @@
       case "arrive": return renderArrive(C.stops[st.stop]);
       case "field": return renderField(C.stops[st.stop]);
       case "cliffhanger": return renderCliffhanger(C.stops[st.stop]);
+      case "finaleTask": return renderFinaleTask();
       case "finale": return renderFinale();
       case "dossier": return renderDossier();
     }
@@ -110,7 +112,7 @@
   /* ----------------------------- HUD ----------------------------- */
   function applyTheme(st) {
     if (st.stop != null) document.body.dataset.theme = C.stops[st.stop].theme || C.stops[st.stop].id;
-    else if (st.kind === "finale") document.body.dataset.theme = "finale";
+    else if (st.kind === "finale" || st.kind === "finaleTask") document.body.dataset.theme = "finale";
     else if (st.kind === "dossier") document.body.dataset.theme = "complete";
     else document.body.dataset.theme = "intro";
   }
@@ -599,6 +601,29 @@
     UI.typewriter(t, stop.cliffhanger, 12).then(function () {
       btnBox.appendChild(bigBtn("Next briefing ▸", next));
     });
+  }
+
+  /* ---------- Finale capstone task: one dish/drink with all 3 flavours ---------- */
+  function renderFinaleTask() {
+    var f = C.finale;
+    var pseudoStop = { id: "finale" };
+    var card = el("div", { class: "card" },
+      el("div", { class: "dossier-tab" }, "FINAL ASSIGNMENT"),
+      el("div", { class: "eyebrow" }, "CONTROL // ALL THREE KEYS RECOVERED"),
+      el("h1", { class: "title" }, f.taskTitle),
+      el("p", { class: "lede" }, f.taskIntro)
+    );
+    var list = el("div");
+    card.appendChild(list);
+    var continueBtn = bigBtn("Report the find to Control ▸", next);
+    function refreshContinue() {
+      var allDone = f.tasks.every(function (t, idx) { return state.done[taskKey(pseudoStop, "finale", idx)]; });
+      continueBtn.disabled = !allDone;
+    }
+    renderTaskItems(pseudoStop, f.tasks, "finale", list, refreshContinue);
+    refreshContinue();
+    card.appendChild(continueBtn);
+    UI.mount(card);
   }
 
   /* ---------- Finale ---------- */
