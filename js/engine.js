@@ -432,7 +432,7 @@
       el("h1", { class: "title" }, r.title),
       el("p", { class: "lede" }, r.text),
       el("div", { class: "rankup" }, "▲ RANK UP: " + newRank),
-      bigBtn(stop.cliffhanger ? "Follow the trail ▸" : "Confront Baron Bland ▸", next)
+      bigBtn(stop.cliffhanger ? "Follow the trail ▸" : "Begin the final assignment ▸", next)
     );
     UI.sound.reveal(); UI.vibrate([10, 40, 10, 40, 10]); UI.celebrate();
     UI.mount(card);
@@ -603,61 +603,51 @@
     });
   }
 
-  /* ---------- Finale capstone task: one dish/drink with all 3 flavours ---------- */
+  /* ---------- Finale showdown: confront the Baron by forging the Golden Recipe.
+     Track down one dish with all three flavours, then forge to defeat him. ---------- */
   function renderFinaleTask() {
     var f = C.finale;
     var pseudoStop = { id: "finale" };
+    var keysRow = el("div", { class: "hud-keys", style: "margin:16px 0;font-size:30px;gap:14px;justify-content:center;" });
+    C.stops.forEach(function (stop) { keysRow.appendChild(el("div", null, stop.keyEmoji)); });
     var card = el("div", { class: "card" },
-      el("div", { class: "dossier-tab" }, "FINAL ASSIGNMENT"),
-      el("div", { class: "eyebrow" }, "CONTROL // ALL THREE KEYS RECOVERED"),
+      el("div", { class: "dossier-tab" }, f.showdownTab),
+      characterPanel("images/characters/baron-bland.jpg", "Baron Bland holding a covered silver serving dish", "FINAL SHOWDOWN // BARON BLAND", "villain"),
       el("h1", { class: "title" }, f.taskTitle),
-      el("p", { class: "lede" }, f.taskIntro)
+      el("p", { class: "lede" }, f.taskIntro),
+      keysRow
     );
     var list = el("div");
     card.appendChild(list);
-    var continueBtn = bigBtn("Report the find to Control ▸", next);
-    function refreshContinue() {
+    var forgeBtn = bigBtn("✨ " + f.forgeCta, function () {
+      state.finished = true; persist();
+      UI.sound.win(); UI.vibrate([10, 40, 10, 40, 30]); UI.celebrate();
+      setTimeout(function () { UI.celebrate(); }, 400);
+      next();
+    });
+    function refreshForge() {
       var allDone = f.tasks.every(function (t, idx) { return state.done[taskKey(pseudoStop, "finale", idx)]; });
-      continueBtn.disabled = !allDone;
+      forgeBtn.disabled = !allDone;
     }
-    renderTaskItems(pseudoStop, f.tasks, "finale", list, refreshContinue);
-    refreshContinue();
-    card.appendChild(continueBtn);
+    renderTaskItems(pseudoStop, f.tasks, "finale", list, refreshForge);
+    refreshForge();
+    card.appendChild(forgeBtn);
     UI.mount(card);
   }
 
-  /* ---------- Finale ---------- */
+  /* ---------- Finale victory (the Golden Recipe is already forged by now) ---------- */
   function renderFinale() {
     var f = C.finale;
-    var forged = state.finished;
-    if (!forged) {
-      var keysRow = el("div", { class: "hud-keys", style: "margin:18px 0;font-size:30px;gap:14px;" });
-      C.stops.forEach(function (stop) { keysRow.appendChild(el("div", null, stop.keyEmoji)); });
-      var card = el("div", { class: "card center" },
-        el("div", { class: "dossier-tab" }, "FINALE"),
-        characterPanel("images/characters/baron-bland.jpg", "Baron Bland holding a covered silver serving dish", "PRIMARY TARGET // BARON BLAND", "villain"),
-        el("h1", { class: "title" }, f.title),
-        el("p", { class: "lede" }, f.intro),
-        keysRow,
-        bigBtn("✨ " + f.cta, function () {
-          state.finished = true; persist();
-          UI.sound.win(); UI.vibrate([10, 40, 10, 40, 30]); UI.celebrate();
-          setTimeout(function () { UI.celebrate(); }, 400);
-          renderFinale();
-        })
-      );
-      UI.mount(card);
-    } else {
-      var card2 = el("div", { class: "card center" },
-        el("div", { class: "stamp" }, "CASE CLOSED"),
-        el("div", { class: "key-badge" }, "🏆"),
-        el("h1", { class: "title" }, f.victoryTitle),
-        el("p", { class: "lede" }, f.victoryText),
-        bigBtn("See your mission dossier ▸", next)
-      );
-      UI.sound.reveal(); UI.celebrate();
-      UI.mount(card2);
-    }
+    if (!state.finished) { state.finished = true; persist(); }
+    var card = el("div", { class: "card center" },
+      el("div", { class: "stamp" }, "CASE CLOSED"),
+      el("div", { class: "key-badge" }, "🏆"),
+      el("h1", { class: "title" }, f.victoryTitle),
+      el("p", { class: "lede" }, f.victoryText),
+      bigBtn("See your mission dossier ▸", next)
+    );
+    UI.sound.reveal(); UI.celebrate();
+    UI.mount(card);
   }
 
   /* ---------- Mission debrief (story recap + evidence album) ---------- */

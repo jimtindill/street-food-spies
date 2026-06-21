@@ -246,25 +246,23 @@ window.SFS.CONTENT = {
       },
       keyReveal: {
         title: "THE UMAMI KEY RECOVERED",
-        text: "All three keys are yours: SALT, SPICE and UMAMI. Baron Bland is cornered…",
+        text: "All three keys are yours: SALT, SPICE and UMAMI. But keys alone won't stop the Baron — only proof that the three tastes can unite will. Time for the final showdown.",
       },
       cliffhanger: null,
     },
   ],
 
   finale: {
+    showdownTab: "FINAL SHOWDOWN",
     taskTitle: "THE GOLDEN BITE",
     taskIntro:
-      "Three keys, three tastes, Agent — SALT, SPICE and UMAMI. Before Control can forge the Golden Recipe, prove they can all sit on one plate (or in one bowl). Track down ONE final dish or drink in Chinatown that carries all three flavours at once.",
+      "This is it, Agent. Baron Bland is right in front of you, and he's wrong about one thing: he says SALT, SPICE and UMAMI can never share a plate. Prove him wrong. Track down ONE final dish or drink in Chinatown that carries all three flavours at once — then forge them into the Golden Recipe and finish him.",
     tasks: [
       { type: "findDish", title: "Acquire the Golden Bite", prompt: "Need ideas? Three sure bets: 🍲 mapo tofu, 🍜 dan dan noodles, or 🥞 a jianbing pancake. Order one and share it as a team.", confirm: "Golden Bite acquired!" },
       { type: "photo", title: "Final evidence", prompt: "Photograph the Golden Bite before the team destroys the evidence." },
       { type: "taste", title: "Final taste verification", prompt: "Rate how well it balances SALT, SPICE and UMAMI all at once.", scaleLabel: "Golden balance" },
     ],
-    title: "ASSEMBLE THE GOLDEN RECIPE",
-    intro:
-      "The Golden Bite is logged — SALT, SPICE and UMAMI, confirmed together. Combine them now to complete the Golden Recipe and restore flavour to London. Tap to forge it, Agent.",
-    cta: "Forge the Golden Recipe",
+    forgeCta: "Forge the Golden Recipe",
     victoryTitle: "BARON BLAND DEFEATED",
     victoryText:
       "The Golden Recipe blazes to life — SALT, SPICE and UMAMI in perfect balance. Across London, grey food bursts back into colour. The Bland Syndicate is finished. You are now a MASTER SPY of M.U.N.C.H. The city eats well tonight.",
