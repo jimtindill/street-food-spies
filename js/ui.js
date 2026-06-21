@@ -47,8 +47,17 @@
   /* ---------- Sound (Web Audio, lazy, unlocked on first gesture) ---------- */
   var actx = null;
   var muted = false;
+  var unlocked = false;
+  // Mobile browsers only let an AudioContext make sound if it's created/resumed
+  // directly inside a user gesture. The intro typewriter used to trigger the
+  // very first call automatically on page load, which permanently "poisoned"
+  // the context on iOS Safari. Wait for a real tap before touching audio.
+  function unlockAudio() { unlocked = true; ensureAudio(); }
+  ["pointerdown", "touchend", "click", "keydown"].forEach(function (evt) {
+    document.addEventListener(evt, unlockAudio, { once: true, passive: true });
+  });
   function ensureAudio() {
-    if (muted) return null;
+    if (muted || !unlocked) return null;
     try {
       if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
       if (actx.state === "suspended") actx.resume();

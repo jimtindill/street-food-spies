@@ -44,8 +44,8 @@ window.SFS.CONTENT = {
       "This message will self-destruct. Good luck. — Control",
     teamPrompt: "Name your squad",
     teamPlaceholder: "e.g. The Hungry Hawks",
-    agentPrompt: "Who's on the team? (one per line)",
-    agentPlaceholder: "Mum\nDad\nLeo",
+    agentPrompt: "Who is your lead agent?",
+    agentPlaceholder: "Enter your name",
     cta: "Accept the mission",
   },
 
