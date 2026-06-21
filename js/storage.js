@@ -13,6 +13,7 @@
       started: false,
       finished: false,
       stepIndex: 0,            // index into the engine's flat step list
+      stepKey: null,           // semantic id (stop-id+kind[+role]) used to re-resolve stepIndex on load
       points: 0,
       keys: [],                // taste strings recovered, e.g. ["SALT"]
       names: { team: "", agents: [] },

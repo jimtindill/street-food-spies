@@ -17,6 +17,7 @@
     Store = window.SFS.Store; Geo = window.SFS.Geo;
     state = Store.load();
     steps = buildSteps();
+    resolveStepIndex();
 
     // HUD + drawer wiring
     document.getElementById("hud-menu").addEventListener("click", openDrawer);
@@ -53,6 +54,27 @@
   function cur() { return steps[Math.min(state.stepIndex, steps.length - 1)]; }
   function curStop() { var st = cur(); return st.stop != null ? C.stops[st.stop] : null; }
 
+  // Identifies a step by stop-id + kind (+role) rather than its raw array
+  // position, so a saved position can survive future edits that add/remove/
+  // reorder steps elsewhere in the list (e.g. editing earlier content).
+  function stepKey(st) {
+    var parts = [st.kind];
+    if (st.stop != null) parts.push(C.stops[st.stop].id);
+    if (st.role) parts.push(st.role);
+    return parts.join(":");
+  }
+  // Re-derives stepIndex from the saved stepKey against the freshly-built
+  // steps list. Falls back to clamping the raw index if there's no saved
+  // key (old save) or its step no longer exists (content was removed).
+  function resolveStepIndex() {
+    if (state.stepKey) {
+      for (var i = 0; i < steps.length; i++) {
+        if (stepKey(steps[i]) === state.stepKey) { state.stepIndex = i; return; }
+      }
+    }
+    state.stepIndex = Math.min(state.stepIndex || 0, steps.length - 1);
+  }
+
   function next() {
     if (state.stepIndex < steps.length - 1) state.stepIndex++;
     persist();
@@ -63,7 +85,7 @@
     if (st.kind === "puzzle") state.assists++;
     next();
   }
-  function persist() { Store.save(state); }
+  function persist() { state.stepKey = stepKey(cur()); Store.save(state); }
 
   function render() {
     decoderShift = 0;

@@ -156,7 +156,7 @@ window.SFS.CONTENT = {
       },
 
       travelMissions: [
-        { type: "contact", title: "Transit intel", prompt: "On the journey, agree one fact about the Tube or train line you're riding (a teammate can check the map).", confirm: "Logged ✓" },
+        { type: "contact", title: "Cover briefing", prompt: "Camden's full of one-of-a-kind characters, Agent. Before you surface, invent a one-line cover identity for each agent to blend into the crowd there (a busker? a tourist? a market trader?). Say them out loud as a team.", confirm: "Cover set ✓" },
         { type: "photo", title: "Cover shot", prompt: "Strike your best secret-agent pose by a Tube roundel and capture it." },
       ],
 
