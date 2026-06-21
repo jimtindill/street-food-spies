@@ -68,6 +68,7 @@
   function render() {
     hintLevel = 0; decoderShift = 0;
     var st = cur();
+    applyTheme(st);
     document.getElementById("hud").classList.toggle("hidden", st.kind === "intro");
     updateHUD();
     switch (st.kind) {
@@ -85,6 +86,37 @@
   }
 
   /* ----------------------------- HUD ----------------------------- */
+  function applyTheme(st) {
+    if (st.stop != null) document.body.dataset.theme = C.stops[st.stop].theme || C.stops[st.stop].id;
+    else if (st.kind === "finale") document.body.dataset.theme = "finale";
+    else if (st.kind === "dossier") document.body.dataset.theme = "complete";
+    else document.body.dataset.theme = "intro";
+  }
+
+  function missionPhase(st) {
+    if (st.kind === "briefing") return 0;
+    if ((st.kind === "puzzle" || st.kind === "reveal") && st.role === "location") return 1;
+    if (st.kind === "travel" || st.kind === "arrive") return 2;
+    if (st.kind === "field") return 3;
+    return 4;
+  }
+
+  function updateMissionProgress() {
+    var st = cur();
+    var nav = document.getElementById("hud-progress");
+    var visible = st.stop != null;
+    nav.classList.toggle("hidden", !visible);
+    nav.innerHTML = "";
+    if (!visible) return;
+    var phase = missionPhase(st);
+    ["Brief", "Decode", "Travel", "Field", "Key"].forEach(function (label, i) {
+      nav.appendChild(el("div", { class: "mission-stage" + (i < phase ? " done" : "") + (i === phase ? " current" : "") },
+        el("span", { class: "stage-dot" }, i < phase ? "✓" : String(i + 1)),
+        el("span", { class: "stage-label" }, label)
+      ));
+    });
+  }
+
   function tasteEmoji(taste) {
     for (var i = 0; i < C.stops.length; i++) if (C.stops[i].keyTaste === taste) return C.stops[i].keyEmoji;
     return "🔑";
@@ -98,6 +130,7 @@
       var on = state.keys.indexOf(stop.keyTaste) !== -1;
       box.appendChild(el("div", { class: "hud-key" + (on ? " on" : "") }, on ? stop.keyEmoji : "?"));
     });
+    updateMissionProgress();
   }
 
   /* ----------------------------- DRAWER ----------------------------- */
@@ -142,11 +175,19 @@
     return el("button", { class: "btn " + (cls || ""), onClick: function () { UI.sound.click(); UI.vibrate(8); onClick(); } }, label);
   }
 
+  function characterPanel(src, alt, label, cls) {
+    return el("figure", { class: "character-panel " + (cls || "") },
+      el("img", { src: src, alt: alt, decoding: "async" }),
+      el("figcaption", null, label)
+    );
+  }
+
   /* ---------- Intro / recruitment ---------- */
   function renderIntro() {
     var t = el("div", { class: "transmission" });
     var card = el("div", { class: "card" },
       el("div", { class: "dossier-tab" }, "TOP SECRET"),
+      characterPanel("images/characters/baron-bland.jpg", "Baron Bland holding a covered silver serving dish", "THREAT DOSSIER // BARON BLAND", "villain opening-villain"),
       el("div", { class: "splash-logo" }, C.agency.name),
       el("div", { class: "splash-sub" }, C.agency.full),
       el("div", { class: "spacer" }),
@@ -183,6 +224,7 @@
     var t = el("div", { class: "transmission" });
     var card = el("div", { class: "card" },
       el("div", { class: "dossier-tab" }, "BRIEFING"),
+      characterPanel("images/characters/control.jpg", "Control, the M.U.N.C.H. mission handler", "SECURE CHANNEL // CONTROL", "compact control"),
       stopHeader(stop, stop.codename),
       el("div", { class: "spacer" }),
       t
@@ -240,9 +282,10 @@
   function norm(s) { return (s || "").toUpperCase().replace(/[^A-Z0-9]/g, ""); }
 
   function renderTextInput(p, role) {
-    var input = el("input", { class: "input", placeholder: p.scrambled ? "Unscramble: " + p.scrambled : "Type your answer", autocomplete: "off", autocapitalize: "characters" });
+    var clue = p.clue || p.scrambled;
+    var input = el("input", { class: "input", placeholder: p.scrambled ? "Unscramble: " + p.scrambled : "Type the place name", autocomplete: "off", autocapitalize: "characters" });
     var wrap = el("div", null,
-      p.scrambled ? el("div", { class: "decoder-out" }, p.scrambled) : null,
+      clue ? el("div", { class: "decoder-out puzzle-clue" }, clue) : null,
       el("div", { class: "field" }, input),
       bigBtn("Submit ▸", function () {
         if (norm(input.value) === norm(p.answer)) solvePuzzle(role, false);
@@ -253,9 +296,12 @@
   }
 
   function renderCipher(p, role) {
-    var out = el("div", { class: "decoder-out" }, p.ciphertext);
-    var shiftSpan = el("span", { class: "shiftnum" }, "0");
-    var slider = el("input", { type: "range", min: "0", max: "25", value: "0" });
+    var startShift = p.startShift != null ? p.startShift : 0;
+    var maxShift = p.maxShift != null ? p.maxShift : 25;
+    decoderShift = startShift;
+    var out = el("div", { class: "decoder-out" }, caesar(p.ciphertext, -startShift));
+    var shiftSpan = el("span", { class: "shiftnum" }, String(startShift));
+    var slider = el("input", { type: "range", min: "0", max: String(maxShift), step: "1", value: String(startShift), "aria-label": "Decoder shift" });
     slider.addEventListener("input", function () {
       decoderShift = parseInt(slider.value, 10);
       shiftSpan.textContent = decoderShift;
@@ -266,7 +312,8 @@
       el("div", { class: "muted small mono" }, "DECODER RING — ciphertext: " + p.ciphertext),
       out,
       el("div", { class: "muted small" }, "shift back by ", shiftSpan),
-      slider
+      slider,
+      el("div", { class: "decoder-scale" }, el("span", null, "0"), el("span", null, maxShift + " — START"))
     );
     var input = el("input", { class: "input", placeholder: "Type the decoded word", autocomplete: "off", autocapitalize: "characters" });
     return el("div", null,
@@ -342,7 +389,7 @@
       el("div", { class: "eyebrow" }, "TARGET ACQUIRED"),
       el("h1", { class: "title" }, r.title),
       el("p", { class: "lede" }, r.text),
-      dossierMap(stop.realName),
+      locationVisual(stop),
       el("div", { class: "btn-row" },
         el("a", { class: "btn btn-secondary", href: Geo.mapsUrl(stop.coords, stop.realName), target: "_blank", rel: "noopener", style: "text-decoration:none;display:block;" }, "🗺️ Open in Maps"),
         el("button", { class: "btn", onClick: function () { UI.sound.click(); next(); } }, "We're heading there ▸")
@@ -352,24 +399,13 @@
     UI.mount(card);
   }
 
-  function dossierMap(label) {
-    var svg =
-      '<svg viewBox="0 0 400 230" xmlns="http://www.w3.org/2000/svg">' +
-      '<rect width="400" height="230" fill="#0c0f14"/>' +
-      '<g stroke="#1f2a36" stroke-width="6" fill="none">' +
-      '<path d="M-10 60 H410"/><path d="M-10 150 H410"/><path d="M80 -10 V240"/><path d="M210 -10 V240"/><path d="M320 -10 V240"/>' +
-      '</g>' +
-      '<path d="M-10 200 C 80 160, 140 230, 220 190 S 360 150, 410 185" stroke="#1c3a52" stroke-width="12" fill="none" opacity="0.8"/>' +
-      '<g stroke="#13202b" stroke-width="2" fill="none" opacity="0.6">' +
-      '<path d="M0 30 H400"/><path d="M0 110 H400"/><path d="M0 190 H400"/><path d="M140 0 V230"/><path d="M270 0 V230"/></g>' +
-      '<g transform="translate(200,108)">' +
-      '<circle r="34" fill="#e8b04b" opacity="0.18"><animate attributeName="r" values="20;40;20" dur="2.2s" repeatCount="indefinite"/></circle>' +
-      '<path d="M0 6 C -16 -14, -16 -30, 0 -30 C 16 -30, 16 -14, 0 6 Z" fill="#e5484d"/>' +
-      '<circle cx="0" cy="-20" r="6" fill="#0c0f14"/>' +
-      '</g></svg>';
-    return el("div", { class: "map-card" },
-      el("div", { html: svg }),
-      el("div", { class: "pin-label" }, "📍 " + label)
+  function locationVisual(stop, cls) {
+    return el("figure", { class: "location-visual " + (cls || "") },
+      el("img", { src: stop.image, alt: "Illustrated view of " + stop.realName, decoding: "async" }),
+      el("figcaption", null,
+        el("span", { class: "location-pin" }, "⌖"),
+        el("span", null, el("b", null, stop.realName), el("small", null, stop.area))
+      )
     );
   }
 
@@ -385,7 +421,8 @@
     var newRank = C.ranks[Math.min(state.keys.length, C.ranks.length - 1)];
     var card = el("div", { class: "card key-reveal" },
       el("div", { class: "stamp" }, "RECOVERED"),
-      el("div", { class: "key-badge" }, stop.keyEmoji),
+      el("div", { class: "key-badge" }, el("img", { src: stop.keyImage, alt: stop.keyName, decoding: "async" })),
+      el("div", { class: "key-nameplate" }, stop.keyName),
       el("div", { class: "eyebrow" }, "FLAVOUR KEY " + state.keys.length + " / " + C.stops.length),
       el("h1", { class: "title" }, r.title),
       el("p", { class: "lede" }, r.text),
@@ -401,7 +438,8 @@
     var card = el("div", { class: "card" },
       el("div", { class: "dossier-tab" }, "IN TRANSIT" ),
       stopHeader(stop, "Travel undercover"),
-      el("p", { class: "muted" }, "Make your way to " + stop.realName + ". Complete these en-route missions for bonus intel.")
+      el("p", { class: "muted" }, "Make your way to " + stop.realName + ". Complete these en-route missions for bonus intel."),
+      locationVisual(stop, "compact")
     );
     var list = el("div");
     card.appendChild(list);
@@ -569,6 +607,7 @@
       C.stops.forEach(function (stop) { keysRow.appendChild(el("div", null, stop.keyEmoji)); });
       var card = el("div", { class: "card center" },
         el("div", { class: "dossier-tab" }, "FINALE"),
+        characterPanel("images/characters/baron-bland.jpg", "Baron Bland holding a covered silver serving dish", "PRIMARY TARGET // BARON BLAND", "villain"),
         el("h1", { class: "title" }, f.title),
         el("p", { class: "lede" }, f.intro),
         keysRow,
@@ -593,37 +632,55 @@
     }
   }
 
-  /* ---------- Dossier (end album + awards) ---------- */
+  /* ---------- Mission debrief (story recap + evidence album) ---------- */
   function renderDossier() {
-    var card = el("div", { class: "card" },
-      el("div", { class: "dossier-tab" }, "MISSION DOSSIER"),
-      el("h1", { class: "title" }, "Case file: " + (state.names.team || "The Agents")),
-      el("p", { class: "muted" }, "Rank achieved: " + C.ranks[C.ranks.length - 1] + " • " + state.points + " points • " + state.keys.length + " Flavour Keys"),
-      el("div", { class: "eyebrow", style: "margin-top:14px;" }, "AWARDS CEREMONY")
+    var photoStat = el("strong", null, String(state.photoCount || 0));
+    var card = el("div", { class: "card debrief" },
+      el("div", { class: "dossier-tab" }, "MISSION DEBRIEF"),
+      el("div", { class: "debrief-heading" },
+        el("div", { class: "eyebrow" }, "CONTROL // FINAL TRANSMISSION"),
+        el("div", { class: "debrief-seal" }, "✓"),
+        el("h1", { class: "title" }, "London's flavour is restored"),
+        el("p", { class: "lede" }, "Outstanding work, " + (state.names.team || "Agents") + ". Broadway, Camden and Chinatown are back in full flavour. Baron Bland is defeated and the Golden Recipe is secure.")
+      ),
+      el("div", { class: "debrief-stats" },
+        el("div", null, el("strong", null, String(state.points)), el("span", null, "Points")),
+        el("div", null, el("strong", null, state.keys.length + "/" + C.stops.length), el("span", null, "Keys")),
+        el("div", null, photoStat, el("span", null, "Evidence"))
+      ),
+      el("div", { class: "section-label" }, "THE RECOVERED RECIPE")
     );
 
-    // Awards: assign each award to an agent (round-robin, deterministic)
-    var agents = state.names.agents && state.names.agents.length ? state.names.agents : ["The Team"];
-    C.awards.slice(0, Math.max(agents.length, 3)).forEach(function (a, i) {
-      card.appendChild(el("div", { class: "award" },
-        el("div", { class: "medal" }, a.medal),
-        el("div", null, el("div", null, el("b", null, agents[i % agents.length]), " — " + a.title), el("div", { class: "muted small" }, a.note))
+    var keys = el("div", { class: "debrief-keys" });
+    C.stops.forEach(function (stop) {
+      keys.appendChild(el("article", { class: "debrief-key " + stop.theme },
+        el("img", { src: stop.keyImage, alt: stop.keyName, decoding: "async" }),
+        el("div", null,
+          el("small", null, stop.realName),
+          el("strong", null, stop.keyTaste),
+          el("span", null, "Key recovered")
+        )
       ));
     });
+    card.appendChild(keys);
 
-    var albumWrap = el("div", null, el("div", { class: "eyebrow", style: "margin-top:18px;" }, "SURVEILLANCE PHOTOS"), el("div", { class: "muted small" }, "Loading evidence…"));
+    var albumWrap = el("section", { class: "evidence-section" },
+      el("div", { class: "section-label" }, "FIELD EVIDENCE"),
+      el("div", { class: "muted small" }, "Loading mission photographs…")
+    );
     card.appendChild(albumWrap);
 
-    card.appendChild(bigBtn("📸 Screenshot this page to keep it!", function () { UI.toast("Take a screenshot to save your dossier 🎉"); }, "btn-secondary"));
-    card.appendChild(el("button", { class: "btn btn-ghost", onClick: function () { confirmReset(); } }, "Play again (new mission)"));
+    card.appendChild(bigBtn("📸 Save this mission debrief", function () { UI.toast("Take a screenshot to save your debrief 🎉"); }, "btn-secondary"));
+    card.appendChild(el("button", { class: "btn btn-ghost", onClick: function () { confirmReset(); } }, "Begin a new mission"));
 
     UI.mount(card);
     UI.sound.win();
 
     Store.getAllPhotos().then(function (photos) {
+      photoStat.textContent = String(photos.length);
       albumWrap.innerHTML = "";
-      albumWrap.appendChild(el("div", { class: "eyebrow" }, "SURVEILLANCE PHOTOS (" + photos.length + ")"));
-      if (!photos.length) { albumWrap.appendChild(el("div", { class: "muted small" }, "No photos captured this mission.")); return; }
+      albumWrap.appendChild(el("div", { class: "section-label" }, "FIELD EVIDENCE // " + photos.length + " FILES"));
+      if (!photos.length) { albumWrap.appendChild(el("div", { class: "empty-evidence" }, "No photographs were captured during this mission.")); return; }
       var grid = el("div", { class: "album" });
       photos.forEach(function (p) { grid.appendChild(el("div", { class: "ph" }, el("img", { src: p.dataUrl }))); });
       albumWrap.appendChild(grid);

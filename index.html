@@ -25,16 +25,19 @@
 
   <!-- Top status bar (hidden on intro) -->
   <header id="hud" class="hud hidden">
-    <button id="hud-menu" class="hud-btn" aria-label="Mission menu">☰</button>
-    <div class="hud-rank">
-      <span class="hud-label">RANK</span>
-      <span id="hud-rank-name">Rookie</span>
+    <div class="hud-main">
+      <button id="hud-menu" class="hud-btn" aria-label="Mission menu">☰</button>
+      <div class="hud-rank">
+        <span class="hud-label">RANK</span>
+        <span id="hud-rank-name">Rookie</span>
+      </div>
+      <div class="hud-keys" id="hud-keys" aria-label="Flavour keys recovered"></div>
+      <div class="hud-points">
+        <span class="hud-label">PTS</span>
+        <span id="hud-points">0</span>
+      </div>
     </div>
-    <div class="hud-keys" id="hud-keys" aria-label="Flavour keys recovered"></div>
-    <div class="hud-points">
-      <span class="hud-label">PTS</span>
-      <span id="hud-points">0</span>
-    </div>
+    <nav id="hud-progress" class="mission-progress hidden" aria-label="Current mission progress"></nav>
   </header>
 
   <!-- Main app surface -->
@@ -63,12 +66,22 @@
   <script src="js/ui.js"></script>
   <script src="js/engine.js"></script>
   <script>
-    // Register service worker for offline play (best-effort; ignored on file://)
+    // Remove the former offline worker and its app-shell caches. Keep this
+    // cleanup in place so returning devices do not continue serving stale files.
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
-        navigator.serviceWorker.register('service-worker.js').catch(function (e) {
-          console.warn('SW registration failed (fine for local file testing):', e);
-        });
+        navigator.serviceWorker.getRegistration('./').then(function (registration) {
+          if (registration) return registration.unregister();
+        }).catch(function (e) { console.warn('SW cleanup failed:', e); });
+      });
+    }
+    if ('caches' in window) {
+      window.addEventListener('load', function () {
+        caches.keys().then(function (keys) {
+          return Promise.all(keys.filter(function (key) {
+            return key.indexOf('munch-spies-') === 0;
+          }).map(function (key) { return caches.delete(key); }));
+        }).catch(function (e) { console.warn('Cache cleanup failed:', e); });
       });
     }
   </script>

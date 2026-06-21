@@ -10,7 +10,7 @@
      - "cipher"        Caesar-shifted text + in-app Decoder Ring.
                        { prompt, ciphertext, shift, answer, hints[] }
      - "anagram"       Unscramble letters. { prompt, scrambled, answer, hints[] }
-     - "code"          Type an exact word/number. { prompt, answer, hints[] }
+     - "code"          Type an exact word/number. { prompt, clue?, answer, hints[] }
      - "multipleChoice"{ prompt, choices:[{id,label}], answer:id, hints[] }
      - "pictureMatch"  Tap the right emoji. { prompt, tiles:[emoji...], answer:emoji, hints[] }
 
@@ -58,8 +58,11 @@ window.SFS.CONTENT = {
       realName: "Broadway Market",
       area: "Hackney, East London",
       coords: { lat: 51.5378, lng: -0.0617 },
+      image: "images/locations/broadway-market.jpg",
+      theme: "salt",
       unlockRadiusMeters: 220,
       keyName: "The Salt Key",
+      keyImage: "images/keys/salt-key.jpg",
       keyEmoji: "🧂",
       keyTaste: "SALT",
 
@@ -68,13 +71,15 @@ window.SFS.CONTENT = {
 
       locationPuzzle: {
         type: "cipher",
-        prompt: "Intercepted drop coordinates. The Syndicate shifted every letter forward by 3. Roll it back.",
+        prompt: "Intercepted drop coordinates. The Syndicate rotated every letter by the same amount. Turn the Decoder Ring down from 12 until the message becomes a real word.",
         ciphertext: "EURDGZDB",
         shift: 3,
+        startShift: 12,
+        maxShift: 12,
         answer: "BROADWAY",
         hints: [
-          "It's the name of a street type — and a famous Hackney market.",
-          "Use the Decoder Ring below. Try shifting back by 3.",
+          "Move down one number at a time and say each result aloud. Stop when it looks like a real word.",
+          "The answer is also a kind of wide street where shows can be performed.",
           "E→B, U→R, R→O … it spells B-R-O-A-D-W-A-Y.",
         ],
       },
@@ -123,8 +128,11 @@ window.SFS.CONTENT = {
       realName: "Camden Market",
       area: "Camden, North London",
       coords: { lat: 51.5415, lng: -0.1466 },
+      image: "images/locations/camden-market.jpg",
+      theme: "spice",
       unlockRadiusMeters: 250,
       keyName: "The Spice Key",
+      keyImage: "images/keys/spice-key.jpg",
       keyEmoji: "🌶️",
       keyTaste: "SPICE",
 
@@ -132,14 +140,14 @@ window.SFS.CONTENT = {
         "Key one secured, Agent. Intel points NORTH — to a market built around a famous lock on the canal, where food from every nation on earth is cooked side by side. Decode the destination.",
 
       locationPuzzle: {
-        type: "anagram",
-        prompt: "Unscramble the intercepted codeword to find the next market.",
-        scrambled: "MAD CNE",
+        type: "code",
+        prompt: "Control sent a picture code. A camera's short spy name is CAM. A fox's home is a DEN. Join the two code-pieces to name the next market.",
+        clue: "📷  CAM   +   🦊  DEN",
         answer: "CAMDEN",
         hints: [
-          "Six letters. It's a place in North London.",
-          "Famous for a canal lock, punk music, and horse stables.",
-          "M-A-D-C-N-E rearranges to C-A-M-D-E-N.",
+          "Say the two chunks aloud: CAM … DEN.",
+          "Push them together with no space: CAM + DEN.",
+          "The answer is C-A-M-D-E-N.",
         ],
       },
       locationReveal: {
@@ -184,8 +192,11 @@ window.SFS.CONTENT = {
       realName: "Chinatown",
       area: "Soho, Central London",
       coords: { lat: 51.5117, lng: -0.1310 },
+      image: "images/locations/chinatown.jpg",
+      theme: "umami",
       unlockRadiusMeters: 200,
       keyName: "The Umami Key",
+      keyImage: "images/keys/umami-key.jpg",
       keyEmoji: "🍜",
       keyTaste: "UMAMI",
 
@@ -250,12 +261,4 @@ window.SFS.CONTENT = {
     victoryText:
       "The Golden Recipe blazes to life — SALT, SPICE and UMAMI in perfect balance. Across London, grey food bursts back into colour. The Bland Syndicate is finished. You are now a MASTER SPY of M.U.N.C.H. The city eats well tonight.",
   },
-
-  awards: [
-    { medal: "🥇", title: "Master Decoder", note: "cracked the trickiest cipher" },
-    { medal: "📸", title: "Eagle Eye", note: "best surveillance photos" },
-    { medal: "🌶️", title: "Bravest Bite", note: "took on the spiciest asset" },
-    { medal: "🍽️", title: "MVP Eater", note: "never left a plate behind" },
-    { medal: "🕵️", title: "Smoothest Operator", note: "kept their cover all day" },
-  ],
 };
