@@ -8,7 +8,7 @@
   var state, steps;
 
   // transient per-navigation UI state (reset on every render())
-  var hintLevel = 0, decoderShift = 0;
+  var decoderShift = 0;
   var lastPhotos = {}; // taskKey -> dataUrl (so a just-taken photo shows instantly)
 
   /* ----------------------------- INIT ----------------------------- */
@@ -66,7 +66,7 @@
   function persist() { Store.save(state); }
 
   function render() {
-    hintLevel = 0; decoderShift = 0;
+    decoderShift = 0;
     var st = cur();
     applyTheme(st);
     document.getElementById("hud").classList.toggle("hidden", st.kind === "intro");
@@ -257,12 +257,6 @@
     else if (p.type === "multipleChoice") body.appendChild(renderChoices(p, role));
     else if (p.type === "pictureMatch") body.appendChild(renderPictureMatch(p, role));
 
-    // Hints
-    var hintBox = el("div", { class: "hints" });
-    var hintBtn = bigBtn("Need a hint, Agent?", function () { showNextHint(p, hintBox, hintBtn, role); }, "btn-secondary");
-    card.appendChild(hintBtn);
-    card.appendChild(hintBox);
-
     UI.mount(card);
   }
 
@@ -361,19 +355,6 @@
       grid.appendChild(tile);
     });
     return grid;
-  }
-
-  function showNextHint(p, hintBox, hintBtn, role) {
-    UI.sound.click();
-    var hints = p.hints || [];
-    if (hintLevel < hints.length) {
-      hintBox.appendChild(el("div", { class: "hint" }, "🔎 " + hints[hintLevel]));
-      hintLevel++;
-    }
-    if (hintLevel >= hints.length) {
-      hintBtn.textContent = "Reveal the answer";
-      hintBtn.onclick = function () { UI.sound.click(); solvePuzzle(role, true); };
-    }
   }
 
   /* ---------- Reveal (location map OR flavour key) ---------- */

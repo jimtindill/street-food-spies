@@ -255,13 +255,6 @@ h2.title { font-family: var(--display); font-size: 22px; margin: 7px 0; }
 .decoder-scale { display: flex; justify-content: space-between; margin-top: -3px; color: var(--ink-dim); font: 700 9px/1 var(--mono); letter-spacing: .08em; }
 .puzzle-clue { margin: 14px 0 4px; padding: 16px 10px; border: 1px solid rgba(var(--accent-rgb),.22); border-radius: 12px; background: rgba(var(--accent-rgb),.06); font-size: 23px; letter-spacing: .12em; }
 
-/* Hint stack */
-.hints { margin-top: 14px; }
-.hint {
-  font-size: 14px; color: var(--ink); background: rgba(90,167,255,0.08);
-  border-left: 3px solid var(--blue); padding: 10px 12px; border-radius: 8px; margin-top: 8px;
-  animation: fade-up .3s;
-}
 .kid-toggle {
   display: inline-flex; align-items: center; gap: 8px; margin-top: 14px;
   background: rgba(232,176,75,0.10); border: 1px dashed var(--amber); color: var(--amber-2);
